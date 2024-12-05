@@ -15,9 +15,7 @@ namespace Polib.CoTasks.Structs
 
         public class Awaiter : INotifyCompletion
         {
-            public bool IsCompleted { get; private set; }
-
-            public void OnCompleted(Action continuation)
+            public Awaiter()
             {
                 CoTaskRunner.Sigleton.StartCoroutine(Run());
                 return;
@@ -25,8 +23,15 @@ namespace Polib.CoTasks.Structs
                 IEnumerator Run()
                 {
                     yield return new WaitForSeconds(10f);
-                    continuation();
+                    IsCompleted = true;
                 }
+            }
+
+            public bool IsCompleted { get; private set; }
+
+            public void OnCompleted(Action continuation)
+            {
+                continuation();
             }
 
             public void GetResult()
