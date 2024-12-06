@@ -6,32 +6,39 @@ using UnityEngine;
 
 namespace Polib.CoTasks.Structs
 {
-    public struct Frames
+    public readonly struct Frames
     {
-        public Awaiter GetAwaiter()
+        private Awaiter awaiter { get; }
+
+        public Frames(int count)
         {
-            return new Awaiter();
+            awaiter = new Awaiter(count);
         }
+
+        public Awaiter GetAwaiter() => awaiter;
 
         public class Awaiter : INotifyCompletion
         {
-            public Awaiter()
-            {
-                CoTaskRunner.Sigleton.StartCoroutine(Run());
-                return;
+            private int count { get; }
 
-                IEnumerator Run()
-                {
-                    yield return new WaitForSeconds(10f);
-                    IsCompleted = true;
-                }
+            public Awaiter(int count)
+            {
+                this.count = count;
             }
 
             public bool IsCompleted { get; private set; }
 
             public void OnCompleted(Action continuation)
             {
-                continuation();
+                CoTaskRunner.Sigleton.StartCoroutine(Run());
+                return;
+
+                IEnumerator Run()
+                {
+                    for (int i = 0; i < count; i++) yield return new WaitForEndOfFrame();
+                    continuation();
+                    IsCompleted = true;
+                }
             }
 
             public void GetResult()
