@@ -3,36 +3,31 @@ using System.Collections;
 using System.Runtime.CompilerServices;
 using Polib.CoTasks.Classes;
 using Polib.CoTasks.Compilation;
+using Polib.CoTasks.Interfaces;
 using UnityEngine;
 
 namespace Polib.CoTasks.Structs
 {
     [AsyncMethodBuilder(typeof(CoTaskBuilder))]
-    public struct CoTask
+    public class CoTask
     {
-        internal AwaitedSource src { get; set; }
+        internal AwaitedSource awaited { get; set; }
 
-        public Awaiter GetAwaiter()
+        public bool    IsCompleted() => awaited is null || awaited.IsCompleted;
+        public Awaiter GetAwaiter()  => new(this);
+
+        public void MarkComplete()
         {
-            return new Awaiter(ref this);
+            awaited.Dispose();
+            awaited = null;
         }
 
-        internal void MarkComplete()
-        {
-            src.Dispose();
-            src = null;
-        }
-
-        public class Awaiter : INotifyCompletion
+        public class Awaiter : IAwaitable
         {
             private CoTask task { get; }
 
-            internal Awaiter(ref CoTask task)
-            {
-                this.task = task;
-            }
-
-            public bool IsCompleted => task.src is null || task.src.IsCompleted;
+            public Awaiter(CoTask task) => this.task = task;
+            public bool IsCompleted => task.IsCompleted();
 
             public void OnCompleted(Action continuation)
             {
@@ -41,7 +36,7 @@ namespace Polib.CoTasks.Structs
 
                 IEnumerator Run()
                 {
-                    yield return new WaitUntil(() => IsCompleted);
+                    yield return new WaitUntil(task.IsCompleted);
                     continuation();
                 }
             }
@@ -55,5 +50,4 @@ namespace Polib.CoTasks.Structs
             }
         }
     }
-
 }

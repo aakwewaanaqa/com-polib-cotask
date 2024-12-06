@@ -55,7 +55,7 @@ namespace Polib.CoTasks.Compilation
             where TAwaiter : INotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            task.src = new AwaitedSource(awaiter);
+            task.awaited = new AwaitedSource(awaiter);
             var cont = BuilderShares.Bind(task.MarkComplete, stateMachine.MoveNext);
             awaiter.OnCompleted(cont);
             // MovableRunner.Singleton.AwaitSource(task, awaiter, stateMachine);
@@ -70,7 +70,7 @@ namespace Polib.CoTasks.Compilation
             where TAwaiter : INotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            task.src = new AwaitedSource(awaiter);
+            task.awaited = new AwaitedSource(awaiter);
             var cont = BuilderShares.Bind(task.MarkComplete, stateMachine.MoveNext);
             awaiter.OnCompleted(cont);
             // MovableRunner.Singleton.AwaitSource(task, awaiter, stateMachine);

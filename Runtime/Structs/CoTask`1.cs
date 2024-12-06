@@ -3,6 +3,7 @@ using System.Collections;
 using System.Runtime.CompilerServices;
 using Polib.CoTasks.Classes;
 using Polib.CoTasks.Compilation;
+using Polib.CoTasks.Interfaces;
 using UnityEngine;
 
 namespace Polib.CoTasks.Structs
@@ -13,31 +14,21 @@ namespace Polib.CoTasks.Structs
         internal AwaitedSource awaited { get; set; }
         internal T             result  { get; set; }
 
-        public Awaiter GetAwaiter()
-        {
-            return new Awaiter(this);
-        }
+        public bool    IsCompleted() => awaited is null || awaited.IsCompleted;
+        public Awaiter GetAwaiter()  => new(this);
 
-        internal void MarkComplete()
+        public void MarkComplete()
         {
             awaited.Dispose();
             awaited = null;
         }
 
-        ~CoTask()
-        {
-        }
-
-        public class Awaiter : INotifyCompletion
+        public class Awaiter : IAwaitable
         {
             private CoTask<T> task { get; }
 
-            internal Awaiter(CoTask<T> task)
-            {
-                this.task = task;
-            }
-
-            public bool IsCompleted => task.awaited is null || task.awaited.IsCompleted;
+            public Awaiter(CoTask<T> task) => this.task = task;
+            public bool IsCompleted => task.IsCompleted();
 
             public void OnCompleted(Action continuation)
             {
