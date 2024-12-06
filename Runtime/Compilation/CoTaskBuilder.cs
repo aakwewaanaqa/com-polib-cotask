@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
 using Polib.CoTasks.Structs;
+using Debug = UnityEngine.Debug;
 
 namespace Polib.CoTasks.Compilation
 {
@@ -54,7 +55,7 @@ namespace Polib.CoTasks.Compilation
             where TAwaiter : INotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            task.src = new CoTaskSource(awaiter);
+            task.src = new AwaitedSource(awaiter);
             var cont = BuilderShares.Bind(task.MarkComplete, stateMachine.MoveNext);
             awaiter.OnCompleted(cont);
             // MovableRunner.Singleton.AwaitSource(task, awaiter, stateMachine);
@@ -69,7 +70,7 @@ namespace Polib.CoTasks.Compilation
             where TAwaiter : INotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            task.src = new CoTaskSource(awaiter);
+            task.src = new AwaitedSource(awaiter);
             var cont = BuilderShares.Bind(task.MarkComplete, stateMachine.MoveNext);
             awaiter.OnCompleted(cont);
             // MovableRunner.Singleton.AwaitSource(task, awaiter, stateMachine);
@@ -88,6 +89,86 @@ namespace Polib.CoTasks.Compilation
         public void SetStateMachine(IAsyncStateMachine stateMachine)
         {
             // don't use boxed stateMachine.
+        }
+    }
+
+    [StructLayout(LayoutKind.Auto)]
+    public struct CoTaskBuilder<T>
+    {
+        private CoTask<T> task;
+
+        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static CoTaskBuilder<T> Create()
+        {
+            return new CoTaskBuilder<T>
+            {
+                Task = new CoTask<T>()
+            };
+        }
+
+        // ReSharper disable once MemberCanBePrivate.Global
+        public CoTask<T> Task
+        {
+            [DebuggerHidden]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => task;
+            [DebuggerHidden]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            private set => task = value;
+        }
+
+        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetException(Exception ex)
+        {
+            throw ex;
+        }
+
+        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetResult(T result)
+        {
+            task.result = result;
+        }
+
+        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AwaitOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
+            where TAwaiter : INotifyCompletion
+            where TStateMachine : IAsyncStateMachine
+        {
+            task.awaited = new AwaitedSource(awaiter);
+            var cont = BuilderShares.Bind(task.MarkComplete, stateMachine.MoveNext);
+            awaiter.OnCompleted(cont);
+        }
+
+        [DebuggerHidden]
+        [SecuritySafeCritical]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AwaitUnsafeOnCompleted<TAwaiter, TStateMachine>(
+            ref TAwaiter awaiter,
+            ref TStateMachine stateMachine)
+            where TAwaiter : INotifyCompletion
+            where TStateMachine : IAsyncStateMachine
+        {
+            task.awaited = new AwaitedSource(awaiter);
+            var cont = BuilderShares.Bind(task.MarkComplete, stateMachine.MoveNext);
+            awaiter.OnCompleted(cont);
+        }
+
+        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Start<TStateMachine>(ref TStateMachine stateMachine)
+            where TStateMachine : IAsyncStateMachine
+        {
+            stateMachine.MoveNext();
+        }
+
+        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetStateMachine(IAsyncStateMachine stateMachine)
+        {
         }
     }
 }

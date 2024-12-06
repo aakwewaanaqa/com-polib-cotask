@@ -7,32 +7,37 @@ using UnityEngine;
 
 namespace Polib.CoTasks.Structs
 {
-    [AsyncMethodBuilder(typeof(CoTaskBuilder))]
-    public struct CoTask
+    [AsyncMethodBuilder(typeof(CoTaskBuilder<>))]
+    public class CoTask<T>
     {
-        internal AwaitedSource src { get; set; }
+        internal AwaitedSource awaited { get; set; }
+        internal T             result  { get; set; }
 
         public Awaiter GetAwaiter()
         {
-            return new Awaiter(ref this);
+            return new Awaiter(this);
         }
 
         internal void MarkComplete()
         {
-            src.Dispose();
-            src = null;
+            awaited.Dispose();
+            awaited = null;
+        }
+
+        ~CoTask()
+        {
         }
 
         public class Awaiter : INotifyCompletion
         {
-            private CoTask task { get; }
+            private CoTask<T> task { get; }
 
-            internal Awaiter(ref CoTask task)
+            internal Awaiter(CoTask<T> task)
             {
                 this.task = task;
             }
 
-            public bool IsCompleted => task.src is null || task.src.IsCompleted;
+            public bool IsCompleted => task.awaited is null || task.awaited.IsCompleted;
 
             public void OnCompleted(Action continuation)
             {
@@ -46,8 +51,9 @@ namespace Polib.CoTasks.Structs
                 }
             }
 
-            public void GetResult()
+            public T GetResult()
             {
+                return task.result;
             }
 
             ~Awaiter()
@@ -55,5 +61,4 @@ namespace Polib.CoTasks.Structs
             }
         }
     }
-
 }

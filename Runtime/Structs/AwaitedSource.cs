@@ -4,13 +4,13 @@ using Polib.CoTasks.Interfaces;
 
 namespace Polib.CoTasks.Structs
 {
-    internal class CoTaskSource : IDisposable
+    internal class AwaitedSource : IDisposable
     {
         private Func<bool> GetIsCompleted { get; set; }
 
         internal bool IsCompleted => GetIsCompleted?.Invoke() ?? true;
 
-        internal CoTaskSource(INotifyCompletion awaiter)
+        internal AwaitedSource(INotifyCompletion awaiter)
         {
             if (awaiter is IAwaitable a)
             {
