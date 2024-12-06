@@ -12,7 +12,7 @@ namespace Polib.CoTasks.Structs
 
         internal AwaitedSource(INotifyCompletion awaiter)
         {
-            if (awaiter is IAwaitable a)
+            if (awaiter is IAwaiter a)
             {
                 GetIsCompleted = () => a.IsCompleted;
                 return;
