@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using Polib.CoTasks.Interfaces;
 
-namespace Polib.CoTasks.Structs
+namespace Polib.CoTasks.Classes
 {
     internal class AwaitedSource : IDisposable
     {

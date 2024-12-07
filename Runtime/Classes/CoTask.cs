@@ -3,7 +3,6 @@ using System.Collections;
 using System.Runtime.CompilerServices;
 using Polib.CoTasks.Compilation;
 using Polib.CoTasks.Interfaces;
-using Polib.CoTasks.Structs;
 using UnityEngine;
 
 namespace Polib.CoTasks.Classes

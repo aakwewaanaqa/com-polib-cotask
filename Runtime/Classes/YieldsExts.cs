@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Reflection;
-using Polib.CoTasks.Classes;
 using Polib.CoTasks.Interfaces;
 using UnityEngine;
 
@@ -11,20 +9,20 @@ namespace Polib.CoTasks.Classes
     {
         public static IAwaiter GetAwaiter(this YieldInstruction yi)
         {
-            return new YiAwaiter(yi);
+            return new YieldInstructionAwaiter(yi);
         }
 
         public static IAwaiter GetAwaiter(this IEnumerator ie)
         {
-            return new IeAwaiter(ie);
+            return new IEnumeratorAwaiter(ie);
         }
     }
 
-    public class YiAwaiter : IAwaiter
+    public class YieldInstructionAwaiter : IAwaiter
     {
         private YieldInstruction yi { get; }
 
-        public YiAwaiter(YieldInstruction yi)
+        public YieldInstructionAwaiter(YieldInstruction yi)
         {
             this.yi = yi;
         }
@@ -49,11 +47,11 @@ namespace Polib.CoTasks.Classes
         }
     }
 
-    public class IeAwaiter : IAwaiter
+    public class IEnumeratorAwaiter : IAwaiter
     {
         private IEnumerator ie { get; }
 
-        public IeAwaiter(IEnumerator ie)
+        public IEnumeratorAwaiter(IEnumerator ie)
         {
             this.ie = ie;
         }

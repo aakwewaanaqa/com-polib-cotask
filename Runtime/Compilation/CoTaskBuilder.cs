@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
 using Polib.CoTasks.Classes;
-using Polib.CoTasks.Structs;
-using Debug = UnityEngine.Debug;
 
 namespace Polib.CoTasks.Compilation
 {

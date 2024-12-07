@@ -6,7 +6,8 @@ namespace Polib.CoTasks.Classes
 {
     public partial class CoTask
     {
-        public WaitUntil Coroutine => new(IsCompleted);
+        public WaitUntil coroutine => new(IsCompleted);
+        public CoTask    Forget()  => this;
 
         public CoTask OnDone(Action f)
         {
@@ -15,7 +16,7 @@ namespace Polib.CoTasks.Classes
 
             IEnumerator Run()
             {
-                yield return Coroutine;
+                yield return coroutine;
                 f();
             }
         }
